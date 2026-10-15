@@ -1,26 +1,384 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* Dark editorial system — ink ground, warm paper type, chartreuse     */
+/* ------------------------------------------------------------------ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core palette */
+  --background: #060708;
+  --foreground: #f0eee8;
+  --muted: #8e8c96;
+  --muted-foreground: #b4b2ba;
+  --accent: #e8ff47;
+  --accent-foreground: #0a0b0d;
+  --border: rgba(240, 238, 232, 0.1);
+  --surface: #0e1014;
+  --surface-elevated: #151820;
+  --ring: #e8ff47;
+
+  /* Semantic */
+  --success: #5dff9f;
+  --danger: #ff5c5c;
+
+  /* Typography scale (fluid) */
+  --text-display: clamp(2.75rem, 9vw, 7.5rem);
+  --text-hero: clamp(2.75rem, 8vw, 6.5rem);
+  --text-heading: clamp(2rem, 5vw, 4rem);
+  --text-subheading: clamp(1.25rem, 2.5vw, 1.75rem);
+  --text-body: clamp(1rem, 1.15vw, 1.125rem);
+  --text-small: clamp(0.8125rem, 1vw, 0.875rem);
+  --text-caption: 0.75rem;
+
+  /* Spacing system (fluid) */
+  --space-section: clamp(5rem, 14vw, 10rem);
+  --space-block: clamp(2.5rem, 6vw, 5rem);
+  --space-gap: clamp(1rem, 2.5vw, 2rem);
+  --container-max: 80rem;
+  --container-wide: 96rem;
+  --container-narrow: 42rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+
+  /* Layout */
+  --nav-height: 4.5rem;
+  --z-canvas: 0;
+  --z-content: 10;
+  --z-nav: 50;
+  --z-overlay: 60;
+  --z-cursor: 100;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --spacing-section: var(--space-section);
+  --spacing-block: var(--space-block);
+  --spacing-gap: var(--space-gap);
+  --spacing-gutter: var(--gutter);
+  --spacing-nav: var(--nav-height);
+
+  --max-width-container: var(--container-max);
+  --max-width-wide: var(--container-wide);
+  --max-width-narrow: var(--container-narrow);
+
+  --ease-out-expo: var(--ease-out-expo);
+  --ease-in-out-soft: var(--ease-in-out-soft);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.bg-accent {
+  color: #000;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {
-  background: var(--background);
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(232, 255, 71, 0.06), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(232, 255, 71, 0.03), transparent 50%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: #0a0b0d;
+}
+
+/* Focus — visible, high-contrast */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Images */
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* Buttons reset */
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography utilities                                                */
+/* ------------------------------------------------------------------ */
+
+.font-display {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  font-feature-settings: "ss01" on, "ss02" on;
+}
+
+.text-display {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  font-size: var(--text-display);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
+.text-hero {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  font-size: var(--text-hero);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.text-heading {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  font-size: var(--text-heading);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.text-subheading {
+  font-size: var(--text-subheading);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: 1.65;
+}
+
+.text-small {
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout utilities                                                    */
+/* ------------------------------------------------------------------ */
+
+.container-site {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container-wide {
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section-padding {
+  padding-block: var(--space-section);
+}
+
+/* Hairline rule */
+.rule {
+  height: 1px;
+  width: 100%;
+  background: var(--border);
+  border: none;
+}
+
+/* Screen-reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: var(--gutter);
+  z-index: calc(var(--z-overlay) + 10);
+  padding: 0.75rem 1.25rem;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 600;
+  font-size: var(--text-small);
+  transform: translateY(-120%);
+  transition: transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.skip-link:focus {
+  transform: translateY(0.75rem);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Content layer above canvas                                          */
+/* ------------------------------------------------------------------ */
+
+.page-content {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee                                                             */
+/* ------------------------------------------------------------------ */
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Safari / iOS: avoid rubber-band fighting Lenis */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Touch targets — ensure interactive controls remain usable */
+@media (pointer: coarse) {
+  .animate-bounce {
+    animation: none;
+  }
+}
+
+/* Firefox focus ring parity */
+@supports (-moz-appearance: none) {
+  :focus-visible {
+    outline-offset: 3px;
+  }
 }
